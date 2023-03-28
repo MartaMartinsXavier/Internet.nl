@@ -123,7 +123,6 @@ COPY --chown=internetnl:internetnl interface ${APP_PATH}/interface
 COPY --chown=internetnl:internetnl internetnl ${APP_PATH}/internetnl
 COPY --chown=internetnl:internetnl remote_data ${APP_PATH}/remote_data
 COPY --chown=internetnl:internetnl tests ${APP_PATH}/tests
-COPY --chown=internetnl:internetnl frontend ${APP_PATH}/frontend
 COPY --chown=internetnl:internetnl translations ${APP_PATH}/translations
 COPY --chown=internetnl:internetnl Changelog.md ${APP_PATH}/Changelog
 COPY --chown=internetnl:internetnl LICENSE.spdx ${APP_PATH}/LICENSE.spdx
@@ -140,20 +139,19 @@ COPY --chown=internetnl:internetnl docker ${APP_PATH}/docker
 RUN ln -s /usr/bin/swig3.0 /usr/bin/swig
 RUN chmod +x ${APP_PATH}/docker/entrypoint.sh
 
+# Prepare the venv and used scripts
 RUN make venv
 RUN chmod +x ${APP_PATH}/.venv/bin/activate
 RUN chmod +x ${APP_PATH}/docker/celery-ping.sh
 RUN chmod +x ${APP_PATH}/docker/postgres-ping.sh
 
 # Todo: this will currently not work on arm machines as somehow the build will still say arch -m64 during build.
-# RUN make nassl_complete
+RUN make nassl
 RUN make unbound-3.7
-RUN make python-whois
 
 # Cleanup temporary build files
 RUN rm -rf nassl_freebsd
 RUN rm -rf unbound
-RUN rm -rf python-whois
 
 # Make sure internetnl user can access all code in the app.
 RUN chown -R internetnl:internetnl ${APP_PATH}
@@ -200,22 +198,19 @@ ENV LD_LIBRARY_PATH /usr/local/lib
 # The "unbound.conf" was a product from the previous unbound step? Probably from the `make install`.
 # The previous version (1.3) did also not contain an unbound conf. So this probably never worked?
 USER root
-WORKDIR /usr/local/etc/unbound
+WORKDIR /opt/unbound2/etc/unbound
 RUN useradd unbound && \
-    cp unbound.conf unbound.conf.org && \
+    mv unbound.conf unbound.conf.org && \
     sed -e 's/# auto-trust-anchor-file:/auto-trust-anchor-file:/' \
         -e 's/# control-enable: no/control-enable: yes/' \
         unbound.conf.org > unbound.conf && \
-    unbound-control-setup && \
-    unbound-anchor || test $? -eq 1 && \
-    chown -R unbound: .
+    /opt/unbound2/sbin/unbound-control-setup && \
+    /opt/unbound2/sbin/unbound-anchor || test $? -eq 1 && \
+    chown -R unbound: . && \
+    chown -R unbound: /opt/unbound2
 
 
 USER internetnl
-
-# Prepare translations
-WORKDIR ${APP_PATH}
-RUN make translations
 
 # Setup the entrypoint command which will be executed when a container built from this image is run
 ENTRYPOINT ["/app/docker/entrypoint.sh"]

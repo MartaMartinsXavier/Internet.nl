@@ -8,15 +8,15 @@ services:
       dockerfile: docker/Dockerfile
     network_mode: host
     dns: 127.0.0.1
-    ports:
-      - "8080:8080"
     depends_on:
       - redis
       - rabbitmq
       - postgres
       - routinator
     environment:
+      - DEBUG=True
       - ENABLE_BATCH=${ENABLE_BATCH:-False}
+      - ALLOWED_HOSTS=127.0.0.1
 
   redis:
     network_mode: host
@@ -37,7 +37,3 @@ services:
   routinator:
     network_mode: host
     image: nlnetlabs/routinator
-    volumes:
-            - routinator-tals:/home/routinator/.rpki-cache/tals
-volumes:
-  routinator-tals: {}

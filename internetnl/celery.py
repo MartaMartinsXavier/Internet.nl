@@ -3,6 +3,8 @@
 import os
 import time
 
+broker_pool_limit = 0
+
 from celery import Celery
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "internetnl.settings")

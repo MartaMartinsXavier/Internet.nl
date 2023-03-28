@@ -2,7 +2,7 @@
 # Copyright: 2022, ECP, NLnet Labs and the Internet.nl contributors
 # SPDX-License-Identifier: Apache-2.0
 
-set -eu
+set -u
 
 if [[ $# -gt 3 || "$1" == "--help" || "$1" == "-h" ]]; then
     echo >&2 "Usage: $(basename $0) [<pg connection string> [<num retries=10> [<connection timeout (int seconds)=1>"

@@ -16,7 +16,7 @@ while [ ${TRY_COUNT} -le ${MAX_RETRIES} ]; do
     echo -n "Pinging Celery workers [${TRY_COUNT}/${MAX_RETRIES}]: .. "
     PONG_COUNT=$(celery -A internetnl inspect ping -t ${TIMEOUT} -j 2>/dev/null | grep -Eo pong | wc -l)
     echo "${PONG_COUNT}/${EXPECTED_PONG_COUNT} ok"
-    [ ${PONG_COUNT} -eq ${EXPECTED_PONG_COUNT} ] && break
+    [ ${PONG_COUNT} -ge ${EXPECTED_PONG_COUNT} ] && break
     let "TRY_COUNT=TRY_COUNT+1"
 done
 
