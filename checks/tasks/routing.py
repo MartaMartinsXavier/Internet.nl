@@ -13,6 +13,8 @@ from . import SetupUnboundContext
 
 from typing import Any, Dict, List, NewType, Tuple, Type, TypeVar
 
+from checks.http_client import http_get
+
 Asn = NewType("Asn", int)
 Ip = NewType("Ip", str)
 Prefix = NewType("Prefix", str)
@@ -192,6 +194,9 @@ class TeamCymruIPtoASN(RouteView):
         """
         try:
             ip = ipaddress.ip_address(ip_in)
+            if getattr(ip, "ipv4_mapped", None):
+                ip = ip.ipv4_mapped
+
             # Reverse the IP. In case of IPv6 we need the exploded address.
             if ip.version == 4:
                 # note we query for the /24 on the assumption that more
@@ -309,7 +314,7 @@ class Routinator(RelyingPartySoftware):
         """
         request = f"{settings.ROUTINATOR_URL}/{asn}/{prefix}"
         try:
-            response = task.get(request)
+            response = http_get(request)
 
             # throw exception during Routinator initialization
             response.raise_for_status()

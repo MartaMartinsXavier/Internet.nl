@@ -1,12 +1,12 @@
 # Copyright: 2022, ECP, NLnet Labs and the Internet.nl contributors
 # SPDX-License-Identifier: Apache-2.0
-import http.client
 import re
 from collections import defaultdict, namedtuple
 
+import requests
+
 from checks import scoring
-from checks.tasks.tls_connection import MAX_REDIRECT_DEPTH, http_fetch
-from checks.tasks.tls_connection_exceptions import ConnectionHandshakeException, ConnectionSocketException, NoIpError
+from checks.http_client import http_get_ip
 
 
 def get_multiple_values_from_header(header):
@@ -65,6 +65,7 @@ class HeaderCheckerContentSecurityPolicy:
             self.has_unsafe_hashes = False
             self.has_http = False
             self.has_bare_https = False
+            self.has_host_without_scheme = False
             self.has_data = False
             self.has_base_uri = False
             self.has_form_action = False
@@ -80,6 +81,7 @@ class HeaderCheckerContentSecurityPolicy:
                 "has_unsafe_eval",
                 "has_http",
                 "has_bare_https",
+                "has_host_without_scheme",
                 "has_data",
                 "has_invalid_host",
                 "has_unsafe_hashes",
@@ -113,6 +115,7 @@ class HeaderCheckerContentSecurityPolicy:
                 f"has_unsafe_hashes: {self.has_unsafe_hashes}\n"
                 f"has_http: {self.has_http}\n"
                 f"has_bare_https: {self.has_bare_https}\n"
+                f"has_host_without_scheme: {self.has_host_without_scheme}\n"
                 f"has_data: {self.has_data}\n"
                 f"has_base_uri: {self.has_base_uri}\n"
                 f"has_form_action: {self.has_form_action}\n"
@@ -308,7 +311,7 @@ class HeaderCheckerContentSecurityPolicy:
         self.parsed = None
         self.result = None
 
-    def _get_directives(self, directives):
+    def _get_directives(self, directives=None):
         if not directives:
             return self.parsed.keys()
         res = []
@@ -340,6 +343,20 @@ class HeaderCheckerContentSecurityPolicy:
                                 return True
         return False
 
+    def _check_hosts_without_scheme(self):
+        """
+        Check for any directives with host, without a scheme (#810)
+        """
+        dirs = self._get_directives()
+        for dir in dirs:
+            for match in self.parsed[dir]:
+                try:
+                    if match.group("host") and not match.group("scheme"):
+                        return True
+                except IndexError:
+                    pass
+        return False
+
     def _check_none_self_similar(self, domain, directive: str):
         """
         Check whether the value is none, self, the domain, subdomain
@@ -350,11 +367,9 @@ class HeaderCheckerContentSecurityPolicy:
         matched_host = 0
         found_self = False
         found_hosts = set()
+        found_none = False
         for match in self.parsed[directive]:
-            if "none" in match.groupdict() and match.group("none"):
-                # There is 'none' we don't care about the rest.
-                return True
-            elif "self" in match.groupdict() and match.group("self"):
+            if "self" in match.groupdict() and match.group("self"):
                 expected_sources += 1
                 found_self = True
             elif "report_sample" in match.groupdict() and match.group("report_sample"):
@@ -376,6 +391,11 @@ class HeaderCheckerContentSecurityPolicy:
                     if not host.endswith(domain):
                         return False
                     matched_host += 1
+            elif "none" in match.groupdict() and match.group("none"):
+                found_none = True
+        if found_none and not found_self and not expected_sources:
+            # 'none' is a short circuit accept if not mixed with any others
+            return True
         if not found_self:
             return False
         # Since we are here, at least one host matched (the visiting domain via
@@ -395,6 +415,7 @@ class HeaderCheckerContentSecurityPolicy:
     def _verdict(self, domain):
         self.result.has_http = self._check_matched_for_groups(dict(scheme=["http", "*"], scheme_source=["http", "*"]))
         self.result.has_bare_https = self._check_matched_for_groups(dict(scheme_source=["https"]))
+        self.result.has_host_without_scheme = self._check_hosts_without_scheme()
         self.result.has_data = self._check_matched_for_groups(
             dict(scheme_source=["data", "*"]), directives=["object-src", "script-src"]
         )
@@ -700,31 +721,22 @@ def http_headers_check(af_ip_pair, domain, header_checkers, task):
     for h in header_checkers:
         results.update(h.get_positive_values())
 
-    put_headers = (("Accept-Encoding", "compress, deflate, exi, gzip, " "pack200-gzip, x-compress, x-gzip"),)
-    get_headers = [h.name for h in header_checkers]
+    put_headers = {"Accept-Encoding": "compress, deflate, exi, gzip, pack200-gzip, x-compress, x-gzip"}
     try:
-        conn, res, headers, visited_hosts = http_fetch(
-            domain,
-            af=af_ip_pair[0],
-            path="",
+        response = http_get_ip(
+            hostname=domain,
+            ip=af_ip_pair[1],
             port=443,
-            task=task,
-            ip_address=af_ip_pair[1],
-            put_headers=put_headers,
-            depth=MAX_REDIRECT_DEPTH,
-            needed_headers=get_headers,
+            headers=put_headers,
+            allow_redirects=False,
         )
-    except (OSError, http.client.BadStatusLine, NoIpError, ConnectionHandshakeException, ConnectionSocketException):
+    except requests.RequestException:
         # Not able to connect, return negative values
         for h in header_checkers:
             results.update(h.get_negative_values())
         results["server_reachable"] = False
     else:
-        if 443 in headers:
-            for name, value in headers[443]:
-                for header_checker in header_checkers:
-                    if name == header_checker.name:
-                        header_checker.check(value, results, domain)
-                        break
+        for header_checker in header_checkers:
+            header_checker.check(response.headers.get(header_checker.name), results, domain)
 
     return results

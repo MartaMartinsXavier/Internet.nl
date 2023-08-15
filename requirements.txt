@@ -52,7 +52,7 @@ colorlog==6.7.0
     # via -r requirements.in
 cryptography==38.0.4
     # via -r requirements.in
-django==3.2.18
+django==3.2.19
     # via
     #   -r requirements.in
     #   django-bleach
@@ -74,6 +74,8 @@ dnspython==2.3.0
     # via eventlet
 eventlet==0.33.3
     # via -r requirements.in
+forcediphttpsadapter==1.0.2
+    # via -r requirements.in
 gevent==22.10.2
     # via -r requirements.in
 gitdb==4.0.10
@@ -91,9 +93,7 @@ hiredis==2.2.2
 idna==3.4
     # via requests
 importlib-metadata==4.13.0
-    # via
-    #   -r requirements.in
-    #   markdown
+    # via -r requirements.in
 iniconfig==2.0.0
     # via pytest
 ip-address==1.4.2
@@ -145,17 +145,18 @@ pytz==2022.7.1
     #   django
 pyyaml==6.0
     # via -r requirements.in
-redis==4.5.3
+redis==4.5.4
     # via django-redis
-requests==2.28.2
+requests==2.31.0
     # via
     #   -r requirements.in
+    #   forcediphttpsadapter
     #   ip-address
     #   pyrabbit2
     #   sectxt
 rjsmin==1.2.1
     # via -r requirements.in
-sectxt==0.8.1
+sectxt==0.8.3
     # via -r requirements.in
 selenium==3.141.0
     # via -r requirements.in
@@ -182,8 +183,6 @@ sqlparse==0.4.3
     # via django
 toml==0.10.2
     # via pytest
-tomli==2.0.1
-    # via setuptools-scm
 typing-extensions==4.4.0
     # via
     #   setuptools-rust

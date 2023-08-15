@@ -1,15 +1,16 @@
 # Copyright: 2019, NLnet Labs and the Internet.nl contributors
 # SPDX-License-Identifier: Apache-2.0
-import http.client
 from cgi import parse_header
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Dict
+from typing import List, Optional, Dict
+from urllib.parse import urlparse
 
+import requests
 import sectxt
 
 from checks import scoring
-from checks.tasks.tls_connection import http_fetch
-from checks.tasks.tls_connection_exceptions import ConnectionHandshakeException, ConnectionSocketException, NoIpError
+from checks.http_client import http_get_ip
+from checks.tasks import SetupUnboundContext
 
 SECURITYTXT_LEGACY_PATH = "/security.txt"
 SECURITYTXT_EXPECTED_PATH = "/.well-known/security.txt"
@@ -22,6 +23,7 @@ class SecuritytxtRetrieveResult:
     content: Optional[str]
     url: str
     found_host: str
+    found_url: Optional[str]
     errors: List[Dict[str, str]]
 
 
@@ -30,54 +32,54 @@ def securitytxt_check(af_ip_pair, domain, task):
     return _evaluate_securitytxt(result)
 
 
-def _retrieve_securitytxt(af_ip_pair, domain: str, task) -> SecuritytxtRetrieveResult:
-    def retrieve_content(request_path) -> Tuple[Optional[int], str, Optional[str], List[str]]:
-        try:
-            conn, res, headers, visited_hosts = http_fetch(
-                domain,
-                af=af_ip_pair[0],
-                path=request_path,
-                port=443,
-                task=task,
-                needed_headers=["Content-Type"],
-                ip_address=af_ip_pair[1],
-                keep_conn_open=True,
-                needed_headers_follow_redirect=True,
-            )
-            response_content = res.read(SECURITYTXT_MAX_LENGTH).decode("utf-8")
-            conn.close()
-
-            content_type = ""
-            for header, value in headers[443]:
-                if header == "Content-Type":
-                    content_type = value.lower() if value else None
-
-            return res.status, content_type, response_content, visited_hosts[443]
-        except (OSError, http.client.HTTPException, NoIpError, ConnectionHandshakeException, ConnectionSocketException):
-            return None, "", None, []
-
+def _retrieve_securitytxt(af_ip_pair, hostname: str, task: SetupUnboundContext) -> SecuritytxtRetrieveResult:
     path = SECURITYTXT_EXPECTED_PATH
     found_host = None
     try:
-        status, content_type, content, visited_hosts = retrieve_content(path)
-        if status != 200:
-            path = SECURITYTXT_LEGACY_PATH
-            status, content_type, content, visited_hosts = retrieve_content(path)
-        if visited_hosts:
-            found_host = visited_hosts[-1]
+        http_kwargs = {
+            "hostname": hostname,
+            "ip": af_ip_pair[1],
+            "port": 443,
+            "path": path,
+        }
+        response = http_get_ip(**http_kwargs)
+        if response.status_code != 200:
+            http_kwargs["path"] = SECURITYTXT_LEGACY_PATH
+            response = http_get_ip(**http_kwargs)
+        if response.history:
+            found_host = urlparse(response.url).hostname
+        else:
+            found_host = hostname
+        content = next(response.iter_content(SECURITYTXT_MAX_LENGTH, decode_unicode=False)).decode("utf-8")
     except UnicodeDecodeError:
         return SecuritytxtRetrieveResult(
             found=True,
             content=None,
-            url=f"https://{domain}{path}",
+            url=f"https://{hostname}{path}",
             found_host=found_host,
             errors=[{"msgid": "utf8"}],
         )
-    return _evaluate_response(status, content_type, domain, path, content, found_host)
+    except requests.RequestException:
+        return _evaluate_response(None, None, hostname, path, "", hostname, None)
+    return _evaluate_response(
+        response.status_code,
+        response.headers.get("Content-Type", ""),
+        hostname,
+        path,
+        content,
+        found_host,
+        response.url,
+    )
 
 
 def _evaluate_response(
-    status: int, content_type: Optional[str], domain: str, path: str, content: str, found_host: str
+    status: Optional[int],
+    content_type: Optional[str],
+    domain: str,
+    path: str,
+    content: str,
+    found_host: str,
+    found_url: Optional[str],
 ) -> SecuritytxtRetrieveResult:
     errors = []
     media_type, charset = None, None
@@ -119,6 +121,7 @@ def _evaluate_response(
         content=content,
         url=f"https://{domain}{path}",
         found_host=found_host,
+        found_url=found_url,
         errors=errors,
     )
 
@@ -136,8 +139,7 @@ def _evaluate_securitytxt(result: SecuritytxtRetrieveResult):
             "securitytxt_recommendations": [],
         }
 
-    # URL intentionally not passed as Canonical testing is out of scope at this time
-    parser = sectxt.Parser(result.content)
+    parser = sectxt.Parser(result.content, urls=result.found_url)
 
     errors = result.errors + parser_format(parser.errors)
     score = scoring.WEB_APPSECPRIV_SECURITYTXT_BAD if errors else scoring.WEB_APPSECPRIV_SECURITYTXT_GOOD
