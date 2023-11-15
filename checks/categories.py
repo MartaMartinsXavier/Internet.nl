@@ -187,6 +187,9 @@ class WebAppsecpriv(Category):
             WebAppsecprivHttpReferrerPolicy,
             WebAppsecprivHttpCsp,
             WebAppsecprivHttpXContentType,
+            WebAppsecprivHttpXXSSProtection,
+            WebAppsecprivHttpSetCookie,
+            WebAppsecprivHttpServerHeader,
             WebAppsecprivSecuritytxt,
         ]
         super().__init__(name, subtests)
@@ -246,6 +249,8 @@ class MailTls(Category):
             MailTlsDaneRollover,
             MailTlsZeroRTT,
             MailTlsKexHashFunc,
+            MailMtasts,
+            MailMtastsPolicy,
             # MailTlsOCSPStapling,  # Disabled for mail.
         ]
         super().__init__(name, subtests)
@@ -2072,6 +2077,71 @@ class MailTlsDaneRollover(Subtest):
         self.verdict = "detail mail tls dane-rollover verdict bad"
         self.tech_data = "detail tech data no"
 
+class MailMtasts(Subtest):
+    def __init__(self):
+        super().__init__(
+            name="mtasts",
+            label="detail mail tls mtasts label",
+            explanation="detail mail tls mtasts exp",
+            tech_string="detail mail tls mtasts tech table",
+            worst_status=scoring.MAIL_MTASTS_WORST_STATUS,
+            full_score=scoring.MAIL_MTASTS_PASS,
+            model_score_field="mtasts_score",
+        )
+        # Fix for one line, one value data (not-tested case)
+        self.tech_data = [[self.tech_data]]
+
+    def result_good(self, tech_data):
+        self._status(STATUS_SUCCESS)
+        self.verdict = "detail mail tls mtasts verdict good"
+        if tech_data:
+            self.tech_data = tech_data
+        else:
+            self.tech_data = ""
+            self.tech_type = ""
+
+    def result_bad(self, tech_data):
+        self._status(STATUS_FAIL)
+        self.verdict = "detail mail tls mtasts verdict bad"
+        if tech_data:
+            self.tech_data = tech_data
+        else:
+            self.tech_data = ""
+            self.tech_type = ""
+
+
+class MailMtastsPolicy(Subtest):
+    def __init__(self):
+        super().__init__(
+            name="mtasts_policy",
+            label="detail mail tls mtasts-policy label",
+            explanation="detail mail tls mtasts-policy exp",
+            tech_string="detail mail tls mtasts-policy tech table",
+            worst_status=scoring.MAIL_MTASTS_POLICY_WORST_STATUS,
+            full_score=scoring.MAIL_MTASTS_POLICY_PASS,
+            model_score_field="mtasts_policy_score",
+        )
+        # Fix for one line, one value data (not-tested case)
+        self.tech_data = [[self.tech_data]]
+
+    def result_good(self, tech_data):
+        self._status(STATUS_SUCCESS)
+        self.verdict = "detail mail tls mtasts-policy verdict good"
+        if tech_data:
+            self.tech_data = tech_data
+        else:
+            self.tech_data = ""
+            self.tech_type = ""
+
+    def result_bad(self, tech_data):
+        self._status(STATUS_FAIL)
+        self.verdict = "detail mail tls mtasts-policy verdict bad"
+        if tech_data:
+            self.tech_data = tech_data
+        else:
+            self.tech_data = ""
+            self.tech_type = ""
+
 
 # --- AUTH
 class MailAuthDkim(Subtest):
@@ -2285,6 +2355,75 @@ class WebAppsecprivHttpXContentType(Subtest):
     def result_bad(self, tech_data):
         self._status(STATUS_FAIL)
         self.verdict = "detail web appsecpriv http-x-content-type verdict bad"
+        self.tech_data = tech_data or ""
+
+
+class WebAppsecprivHttpXXSSProtection(Subtest):
+    def __init__(self):
+        super().__init__(
+            name="http_x_xss",
+            label="detail web appsecpriv http-x-xss-protection label",
+            explanation="detail web appsecpriv http-x-xss-protection exp",
+            tech_string="detail web appsecpriv http-x-xss-protection tech table",
+            worst_status=(scoring.WEB_APPSECPRIV_X_XSS_PROTECTION_BAD),
+            full_score=scoring.WEB_APPSECPRIV_X_XSS_PROTECTION_GOOD,
+            model_score_field="x_xss_protection_score",
+        )
+
+    def result_good(self, tech_data):
+        self._status(STATUS_NOTICE)
+        self.verdict = "detail web appsecpriv http-x-xss-protection verdict good"
+        self.tech_data = tech_data
+
+    def result_bad(self, tech_data):
+        self._status(STATUS_INFO)
+        self.verdict = "detail web appsecpriv http-x-xss-protection verdict bad"
+        self.tech_data = tech_data or ""
+
+
+class WebAppsecprivHttpSetCookie(Subtest):
+    def __init__(self):
+        super().__init__(
+            name="http_set_cookie",
+            label="detail web appsecpriv http-set-cookie label",
+            explanation="detail web appsecpriv http-set-cookie exp",
+            tech_string="detail web appsecpriv http-set-cookie tech table",
+            worst_status=(scoring.WEB_APPSECPRIV_SET_COOKIE_BAD),
+            full_score=scoring.WEB_APPSECPRIV_SET_COOKIE_GOOD,
+            model_score_field="set_cookie_score",
+        )
+
+    def result_good(self, tech_data):
+        self._status(STATUS_NOTICE)
+        self.verdict = "detail web appsecpriv http-set-cookie verdict good"
+        self.tech_data = tech_data
+
+    def result_bad(self, tech_data):
+        self._status(STATUS_INFO)
+        self.verdict = "detail web appsecpriv http-set-cookie verdict bad"
+        self.tech_data = tech_data or ""
+
+
+class WebAppsecprivHttpServerHeader(Subtest):
+    def __init__(self):
+        super().__init__(
+            name="http_server_header",
+            label="detail web appsecpriv http-server-header label",
+            explanation="detail web appsecpriv http-server-header exp",
+            tech_string="detail web appsecpriv http-server-header tech table",
+            worst_status=(scoring.WEB_APPSECPRIV_SERVER_HEADER_BAD),
+            full_score=scoring.WEB_APPSECPRIV_SERVER_HEADER_GOOD,
+            model_score_field="server_header_score",
+        )
+
+    def result_good(self, tech_data):
+        self._status(STATUS_NOTICE)
+        self.verdict = "detail web appsecpriv http-server-header verdict good"
+        self.tech_data = tech_data
+
+    def result_bad(self, tech_data):
+        self._status(STATUS_INFO)
+        self.verdict = "detail web appsecpriv http-server-header verdict bad"
         self.tech_data = tech_data or ""
 
 

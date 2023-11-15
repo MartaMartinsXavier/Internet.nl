@@ -1431,6 +1431,72 @@ msgstr ""
 "een geauthenticeerde versleutelde transportverbinding met je ontvangende "
 "mailserver(s) opzetten."
 
+
+
+
+
+
+msgid "detail mail tls mtasts exp"
+msgstr ""
+"We check the presence of the '_mta-sts' DNS record, and whether it contains 'v=STSv1' at the start, followed by a valid id."
+"If the record is present, this test passes successfully."
+" \n"
+"*Requirement level: Recommended* "
+
+msgid "detail mail tls mtasts label"
+msgstr "MTA-STS exists"
+
+msgid "detail mail tls mtasts tech table"
+msgstr "MTA-STS DNS record|value"
+
+msgid "detail mail tls mtasts verdict bad"
+msgstr "Your web server does *not* have a MTA-STS record."
+
+msgid "detail mail tls mtasts verdict good"
+msgstr "Your mail server has a MTA-STS record."
+
+
+
+
+msgid "detail mail tls mtasts-policy exp"
+msgstr ""
+"The policy is checked for the presence of the version, which has to be 'STSv1', for whether the mode is present, whether the age is present and valid,"
+"and whether one or more mx entries are also present in the MTA-STS policy."
+" \n"
+"*Requirement level: Recommended* "
+
+msgid "detail mail tls mtasts-policy label"
+msgstr "MTA-STS valid"
+
+msgid "detail mail tls mtasts-policy tech table"
+msgstr "MTA-STS policy| value"
+
+msgid "detail mail tls mtasts-policy verdict bad"
+msgstr "The syntax of your MTA-STS policy is not correct"
+
+msgid "detail mail tls mtasts-policy verdict good"
+msgstr "Your MTA-STS has the correct syntax"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 msgid "detail mail tls fs-params exp"
 msgstr ""
 "We testen of de publieke parameters, die in de Diffie-Hellman sleuteluitwisseling worden gebruikt door je mailservers (MX), veilig zijn. \n"
@@ -2160,6 +2226,86 @@ msgstr "Je webserver biedt *geen* X-Content-Type-Options aan."
 
 msgid "detail web appsecpriv http-x-content-type verdict good"
 msgstr "Je webserver biedt X-Content-Type-Options aan."
+
+
+
+
+msgid "detail web appsecpriv http-x-xss-protection exp"
+msgstr ""
+"We check if your web server provides an HTTP header for `X-XSS-Protection`."
+"The header instructs the browser on how to respond when a potential XSS attack is detected, with options to block the malicious content or attempt to sanitize it. "
+" This HTTP header is used to configure the XSS protection mechanism built into some legacy web browsers.\n"
+" However, nowadays this header is considered deprecated in favor of adding a policy under the Content Security Policy header\n"
+" Testing for the presence of the X-XSS-Protection header remains relevant, as its misconfiguration or improper use can potentially introduce security vulnerabilities and expose users to increased risk. \n"
+"\n"
+"*Requirement level: Recommended* "
+
+msgid "detail web appsecpriv http-x-xss-protection label"
+msgstr "X-XSS-Protection"
+
+msgid "detail web appsecpriv http-x-xss-protection tech table"
+msgstr "Web server IP address|X-XSS-Protection value"
+
+msgid "detail web appsecpriv http-x-xss-protection verdict bad"
+msgstr "Your web server does *not* offer X-XSS-Protection."
+
+msgid "detail web appsecpriv http-x-xss-protection verdict good"
+msgstr "Your web server offers X-XSS-Protection."
+
+
+
+
+msgid "detail web appsecpriv http-server-header exp"
+msgstr ""
+" We assess the presence of the Server HTTP header in your web server's response. This header typically discloses the type of web server software in use, and possibly its version number."
+" Although it is not a security vulnerability by itself, it exposes unnecessary details about the server’s configuration."
+" Attackers could potentially exploit this information, using it to tailor their attacks to target specific known vulnerabilities of the disclosed server software and version."
+" As a best practice for securing web applications, it is recommended to either remove the Server HTTP header entirely or to modify its value to contain false information\n"
+"\n"
+"*Requirement level: Recommended* "
+
+msgid "detail web appsecpriv http-server-header label"
+msgstr "Server-header"
+
+msgid "detail web appsecpriv http-server-header tech table"
+msgstr "Web server IP address|Server-header value"
+
+msgid "detail web appsecpriv http-server-header verdict bad"
+msgstr "Your web server might be exposing its software and version"
+
+msgid "detail web appsecpriv http-server-header verdict good"
+msgstr "Your web is *not* exposing its software and version!"
+
+
+
+
+msgid "detail web appsecpriv http-set-cookie exp"
+msgstr ""
+"We check if your web server is using session cookies which are shared through the Set-cookie header. When sharing session cookies, they should be"
+"shared using flags to enhance security in their transmission. Both the 'secure' flag and the 'httpOnly' flag should be present.\n"
+"The Secure flag ensures that the cookie is sent only over secure, HTTPS connections. This is vital for preventing attackers from intercepting or tampering with the cookie when it is transmitted over insecure, unencrypted HTTP connections."
+"The HttpOnly flag adds an additional layer of protection by making the cookie inaccessible to JavaScript running in the browser. This helps mitigate the risk of cross-site scripting (XSS) attacks, where an attacker might try to steal cookies by injecting malicious scripts into web pages."
+" \n"
+"*Requirement level: Recommended* "
+
+msgid "detail web appsecpriv http-set-cookie label"
+msgstr "Set-cookie"
+
+msgid "detail web appsecpriv http-set-cookie tech table"
+msgstr "Web server IP address|Set-cookie value"
+
+msgid "detail web appsecpriv http-set-cookie verdict bad"
+msgstr "Your web server does *not* have secure session cookies."
+
+msgid "detail web appsecpriv http-set-cookie verdict good"
+msgstr "Your web server has secure session cookies"
+
+
+
+
+
+
+
 
 msgid "detail web appsecpriv http-x-frame exp"
 msgstr ""

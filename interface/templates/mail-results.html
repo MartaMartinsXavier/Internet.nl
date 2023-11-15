@@ -81,6 +81,8 @@
     {% include "details-test-item.html" with testitem=details.dane_exists %}
     {% include "details-test-item.html" with testitem=details.dane_valid %}
     {% include "details-test-item.html" with testitem=details.dane_rollover %}
+    {% include "details-test-item.html" with testitem=details.mtasts %}
+    {% include "details-test-item.html" with testitem=details.mtasts_policy %}
 
   {% elif probe.name == 'mailrpki' %}
     <div class="test-subsection">

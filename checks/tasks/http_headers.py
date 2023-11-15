@@ -657,6 +657,147 @@ class HeaderCheckerXContentTypeOptions:
         }
 
 
+class HeaderCheckerXXSSProtection:
+    """
+    Class for checking the X-XSS-Protection HTTP header.
+
+    """
+
+    def __init__(self):
+        self.name = "X-XSS-Protection"
+
+    def check(self, value, results, domain):
+        """
+        Check if the header has the allowed value.
+
+        """
+    
+        if not value:
+            score = scoring.WEB_APPSECPRIV_X_XSS_PROTECTION_BAD
+            results["x_xss_protection_score"] = score
+            results["x_xss_protection_enabled"] = False
+        else:
+            values = get_multiple_values_from_header(value)
+            if "1" in values and ("mode=block" in values or "report=" in value.lower()):
+                score = scoring.WEB_APPSECPRIV_X_XSS_PROTECTION_GOOD
+                results["x_xss_protection_score"] = score
+                results["x_xss_protection_enabled"] = True
+            else:
+                score = scoring.WEB_APPSECPRIV_X_XSS_PROTECTION_BAD
+                results["x_xss_protection_score"] = score
+                results["x_xss_protection_enabled"] = False
+            results["x_xss_protection_values"].extend(values)
+
+
+
+    def get_positive_values(self):
+        score = scoring.WEB_APPSECPRIV_X_XSS_PROTECTION_GOOD
+        return {
+            "x_xss_protection_enabled": True,
+            "x_xss_protection_score": score,
+            "x_xss_protection_values": [],
+        }
+
+    def get_negative_values(self):
+        score = scoring.WEB_APPSECPRIV_X_XSS_PROTECTION_BAD
+        return {
+            "x_xss_protection_enabled": False,
+            "x_xss_protection_score": score,
+            "x_xss_protection_values": [],
+        }
+
+
+
+class HeaderCheckerSetCookie:
+    """
+    Class for checking the Set-cookie HTTP header.
+
+    """
+
+    def __init__(self):
+        self.name = "Set-Cookie"
+
+    def check(self, value, results, domain):
+        """
+        Check if the header has any of the allowed values.
+
+        """
+        if not value:
+            score = scoring.WEB_APPSECPRIV_SET_COOKIE_BAD
+            results["set_cookie_score"] = score
+            results["set_cookie_enabled"] = False
+        else:
+            values = get_multiple_values_from_header(value)
+            secure_flag = any("secure" in v.lower() for v in values)
+            httponly_flag = any("httponly" in v.lower() for v in values)
+
+            first_header = values[0].upper()
+            if first_header != secure_flag or not httponly_flag:
+                score = scoring.WEB_APPSECPRIV_SET_COOKIE_BAD
+                results["set_cookie_score"] = score
+                results["set_cookie_enabled"] = False
+            results["set_cookie_values"].extend(values)
+
+    def get_positive_values(self):
+        score = scoring.WEB_APPSECPRIV_SET_COOKIE_GOOD
+        return {
+            "set_cookie_enabled": True,
+            "set_cookie_score": score,
+            "set_cookie_values": [],
+        }
+
+    def get_negative_values(self):
+        score = scoring.WEB_APPSECPRIV_SET_COOKIE_BAD
+        return {
+            "set_cookie_enabled": False,
+            "set_cookie_score": score,
+            "set_cookie_values": [],
+        }
+
+
+class HeaderCheckerServer:
+    """
+    Class for checking the Server HTTP header.
+
+    """
+
+    def __init__(self):
+        self.name = "Server"
+
+    def check(self, value, results, domain):
+        """
+        Check if the Server header is present.
+
+        """
+        if not value:
+            score = scoring.WEB_APPSECPRIV_SERVER_HEADER_BAD
+            results["server_header_score"] = score
+            results["server_header_present"] = False
+        else:
+            values = get_multiple_values_from_header(value)
+            if values:
+                score = scoring.WEB_APPSECPRIV_SERVER_HEADER_BAD
+                results["server_header_score"] = score
+                results["server_header_present"] = True
+            results["server_header_values"].extend(values)
+
+
+    def get_positive_values(self):
+        score = scoring.WEB_APPSECPRIV_SERVER_HEADER_GOOD
+        return {
+            "server_header_present": True,
+            "server_header_score": score,
+            "server_header_values": [],
+        }
+
+    def get_negative_values(self):
+        score = scoring.WEB_APPSECPRIV_SERVER_HEADER_BAD
+        return {
+            "server_header_present": False,
+            "server_header_score": score,
+            "server_header_values": [],
+        }
+
 class HeaderCheckerReferrerPolicy:
     """
     Class for checking the Referrer-Policy HTTP header.

@@ -311,6 +311,24 @@ if settings.INTERNET_NL_CHECK_SUPPORT_APPSECPRIV:
                             "translation_key": "web appsecpriv http-x-content",
                         },
                         {
+                            "name": "web_appsecpriv_x_xss",
+                            "name_on_report": "http_x_xss",
+                            "type": "test",
+                            "translation_key": "web appsecpriv http-x-xss",
+                        },
+                        {
+                            "name": "web_appsecpriv_set_cookie",
+                            "name_on_report": "http_set_cookie",
+                            "type": "test",
+                            "translation_key": "web appsecpriv http-set-cookie",
+                        },
+                        {
+                            "name": "web_appsecpriv_server_header",
+                            "name_on_report": "http_server_header",
+                            "type": "test",
+                            "translation_key": "web appsecpriv http-server-header",
+                        },
+                        {
                             "name": "web_appsecpriv_csp",
                             "name_on_report": "http_csp",
                             "type": "test",

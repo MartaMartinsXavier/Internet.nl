@@ -19,7 +19,7 @@ def test_index_http_ok(page, app_url_subdomain):
 
 @pytest.mark.parametrize(
     ("app_url", "footer_text"),
-    [("https://en.internet.test", FOOTER_TEXT_EN), ("https://nl.internet.test", FOOTER_TEXT_NL)],
+    [("https://en.internet.test", FOOTER_TEXT_EN), ("https://nl.internet.test", FOOTER_TEXT_NL), ("https://pt.internet.test", FOOTER_TEXT_PT)],
 )
 def test_index_footer_text_present(page, app_url, footer_text):
     page.goto(app_url)

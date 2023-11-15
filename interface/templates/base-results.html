@@ -105,6 +105,24 @@
                 {% include "string.html" with name="results no-icon-status "|addstr:probe.verdict %}:
               </span>
               {% include "string.html" with name="test "|addstr:probe.name|addstr:" label" %}
+
+
+        {% if probe.name == 'siteipv6' %}
+        <a class="lightbulb" href="https://webcheck.pt/fotos/dns_categorias/tutorialdnssec_20889286505d1f0b80ae49c.pdf"></a>
+        <a class="tutorial" href="https://webcheck.pt/fotos/dns_categorias/tutorialdnssec_20889286505d1f0b80ae49c.pdf"></a>
+        {% endif %}
+        {% if probe.name == 'sitetls' %}
+        <a class="lightbulb" href="https://webcheck.pt/fotos/dns_categorias/tutorialdnssec_20889286505d1f0b80ae49c.pdf"></a>
+        <a class="tutorial" href="https://webcheck.pt/fotos/dns_categorias/tutorialdnssec_20889286505d1f0b80ae49c.pdf"></a>
+        {% endif %}
+        {% if probe.name == 'siteappsecpriv' %}
+        <a class="lightbulb" href="https://webcheck.pt/fotos/dns_categorias/tutorialdnssec_20889286505d1f0b80ae49c.pdf"></a>
+        <a class="tutorial" href="https://webcheck.pt/fotos/dns_categorias/tutorialdnssec_20889286505d1f0b80ae49c.pdf"></a>
+        {% endif %}
+        {% if probe.name == 'siterpki' %}
+        <a class="lightbulb" href="https://webcheck.pt/fotos/dns_categorias/tutorialdnssec_20889286505d1f0b80ae49c.pdf"></a>
+        <a class="tutorial" href="https://webcheck.pt/fotos/dns_categorias/tutorialdnssec_20889286505d1f0b80ae49c.pdf"></a>
+        {% endif %}
             </h2>
         </div>
         <div id="{{probe.name}}-description" class="description">

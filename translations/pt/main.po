@@ -89,7 +89,7 @@ msgstr ""
 "The website Internet.nl was audited for accessibility by the Dutch Accessibility Foundation at the end of 2018. The findings are included in the [report \"WCAG 2 study www.internet.nl - level AA\"](/static/accessibility/check_6967_auto_rapport.pdf) (in Dutch) d.d. 14 November 2018. Based on these findings, the Internet Standards Platform has implemented a number of improvements for the accessibility of Internet.nl.  "
 
 msgid "base about"
-msgstr "About Internet.nl"
+msgstr "Sobre"
 
 msgid "base accessibility"
 msgstr "Accessibility"
@@ -98,19 +98,19 @@ msgid "base blogs"
 msgstr "Blogs"
 
 msgid "base contact"
-msgstr "Contact"
+msgstr "Contactos"
 
 msgid "base copyright"
 msgstr "Copyright"
 
 msgid "base disclosure"
-msgstr "Report vulnerability"
+msgstr "Reportar vulnerabilidades"
 
 msgid "base faqs"
-msgstr "Knowledge base"
+msgstr "Recomendações"
 
 msgid "base halloffame"
-msgstr "Hall of Fame"
+msgstr "Exemplos de Excelência"
 
 msgid "base halloffame champions"
 msgstr "Hall of Fame - Champions!"
@@ -130,21 +130,21 @@ msgid "base halloffame web"
 msgstr "Hall of Fame - Websites"
 
 msgid "base home"
-msgstr "Home"
+msgstr "Início"
 
 msgid "base info"
 msgstr ""
-"Internet.nl is an initiative of the Internet community and the Dutch \n"
-"government."
+"Desenvolvido no âmbito da dissertação Internet.nl Assessment"
+
 
 msgid "base news"
-msgstr "News"
+msgstr "Notícias"
 
 msgid "base newslink"
-msgstr "To the news overview"
+msgstr "Mais Notícias"
 
 msgid "base privacy"
-msgstr "Privacy statement"
+msgstr "Política de Privacidade"
 
 msgid "base test connection explain"
 msgstr ""
@@ -163,18 +163,18 @@ msgstr ""
 "## Test your connection"
 
 msgid "base test connection label"
-msgstr "Test your connection"
+msgstr "Testa a tua ligação"
 
 msgid "base test connection text"
 msgstr ""
-"Modern addresses reachable?   \n"
-"Domain signatures validated?"
+"Endereço moderno alcançável? \n"
+"Assinatura de domínio válida?"
 
 msgid "base test connection title"
 msgstr "About the connection test"
 
 msgid "base test explain"
-msgstr "About the test"
+msgstr "Mais sobre o teste"
 
 msgid "base test mail explain"
 msgstr ""
@@ -201,13 +201,13 @@ msgstr ""
 "## Test your email"
 
 msgid "base test mail input"
-msgstr "Your email address:"
+msgstr "O seu e-mail:"
 
 msgid "base test mail label"
-msgstr "Test your email"
+msgstr "Testa o teu e-mail"
 
 msgid "base test mail text"
-msgstr "Modern address? Anti-phishing? Secure transport? Route authorisation?"
+msgstr "Endereço moderno? Anti-phishing? Comunicações seguras? Rota autorizada?"
 
 msgid "base test mail title"
 msgstr "About the email test"
@@ -243,14 +243,14 @@ msgstr ""
 "## Test your website"
 
 msgid "base test website input"
-msgstr "Your website domain name:"
+msgstr "O nome do seu domínio:"
 
 msgid "base test website label"
-msgstr "Test your website"
+msgstr "Testa o teu domínio"
 
 msgid "base test website text"
 msgstr ""
-"Modern address? Signed domain? Secure connection? Route authorisation?"
+"Endereço moderno? Domínio assinado? Conexão segura? Rota autorizada?"
 
 msgid "base test website title"
 msgstr "About the website test"
@@ -1409,6 +1409,71 @@ msgstr ""
 "authenticated encrypted transport connection with your receiving mail "
 "servers."
 
+
+
+
+
+
+
+
+msgid "detail mail tls mtasts exp"
+msgstr ""
+"We check the presence of the '_mta-sts' DNS record, and whether it contains 'v=STSv1' at the start, followed by a valid id."
+"If the record is present, this test passes successfully."
+" \n"
+"*Requirement level: Recommended* "
+
+msgid "detail mail tls mtasts label"
+msgstr "MTA-STS exists"
+
+msgid "detail mail tls mtasts tech table"
+msgstr "MTA-STS DNS record|value"
+
+msgid "detail mail tls mtasts verdict bad"
+msgstr "Your web server does *not* have a MTA-STS record."
+
+msgid "detail mail tls mtasts verdict good"
+msgstr "Your mail server has a MTA-STS record."
+
+
+
+
+msgid "detail mail tls mtasts-policy exp"
+msgstr ""
+"The policy is checked for the presence of the version, which has to be 'STSv1', for whether the mode is present, whether the age is present and valid,"
+"and whether one or more mx entries are also present in the MTA-STS policy."
+" \n"
+"*Requirement level: Recommended* "
+
+msgid "detail mail tls mtasts-policy label"
+msgstr "MTA-STS valid"
+
+msgid "detail mail tls mtasts-policy tech table"
+msgstr "MTA-STS policy| value"
+
+msgid "detail mail tls mtasts-policy verdict bad"
+msgstr "The syntax of your MTA-STS policy is not correct"
+
+msgid "detail mail tls mtasts-policy verdict good"
+msgstr "Your MTA-STS has the correct syntax"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 msgid "detail mail tls fs-params exp"
 msgstr ""
 "We check if the public parameters used in Diffie-Hellman key exchange by your receiving mail servers (MX) are secure.\n"
@@ -2232,11 +2297,6 @@ msgstr "Your web server has secure session cookies"
 
 
 
-
-
-
-
-
 msgid "detail web appsecpriv http-x-frame exp"
 msgstr ""
 "We check if your web server provides an HTTP header for `X-Frame-Options` that has a sufficiently secure policy. With this HTTP header you let web browsers know whether you want to allow your website to be framed or not. Prevention of framing defends visitors against attacks like clickjacking. We consider the following values to be sufficiently secure: \n"
@@ -2888,56 +2948,6 @@ msgstr ""
 msgid "detail web tls dane-valid verdict good"
 msgstr ""
 "The DANE fingerprint on your domain is valid for your web certificate."
-
-
-
-
-msgid "detail mail tls mtasts exp"
-msgstr ""
-"We check the presence of the '_mta-sts' DNS record, and whether it contains 'v=STSv1' at the start, followed by a valid id."
-"If the record is present, this test passes successfully."
-" \n"
-"*Requirement level: Recommended* "
-
-msgid "detail mail tls mtasts label"
-msgstr "MTA-STS exists"
-
-msgid "detail mail tls mtasts tech table"
-msgstr "MTA-STS DNS record|value"
-
-msgid "detail mail tls mtasts verdict bad"
-msgstr "Your web server does *not* have a MTA-STS record."
-
-msgid "detail mail tls mtasts verdict good"
-msgstr "Your mail server has a MTA-STS record."
-
-
-
-
-msgid "detail mail tls mtasts-policy exp"
-msgstr ""
-"The policy is checked for the presence of the version, which has to be 'STSv1', for whether the mode is present, whether the age is present and valid,"
-"and whether one or more mx entries are also present in the MTA-STS policy."
-" \n"
-"*Requirement level: Recommended* "
-
-msgid "detail mail tls mtasts-policy label"
-msgstr "MTA-STS valid"
-
-msgid "detail mail tls mtasts-policy tech table"
-msgstr "MTA-STS policy| value"
-
-msgid "detail mail tls mtasts-policy verdict bad"
-msgstr "The syntax of your MTA-STS policy is not correct"
-
-msgid "detail mail tls mtasts-policy verdict good"
-msgstr "Your MTA-STS has the correct syntax"
-
-
-
-
-
-
 
 msgid "detail web tls fs-params exp"
 msgstr ""
@@ -4020,16 +4030,16 @@ msgstr ""
 " and DANE."
 
 msgid "home stats connection"
-msgstr "unique connections"
+msgstr "Ligações únicas"
 
 msgid "home stats connection-items"
 msgstr ""
 
 msgid "home stats header"
-msgstr "Tests in numbers"
+msgstr "Estatísticas"
 
 msgid "home stats mail"
-msgstr "unique mail domains"
+msgstr "e-mails únicos testados"
 
 msgid "home stats mail-items"
 msgstr ""
@@ -4041,7 +4051,7 @@ msgid "home stats passed"
 msgstr "100%:"
 
 msgid "home stats website"
-msgstr "unique web domains"
+msgstr "websites únicos testados"
 
 msgid "home stats website-items"
 msgstr ""
@@ -4049,8 +4059,8 @@ msgstr ""
 #, md-format
 msgid "home teaser"
 msgstr ""
-"Modern Internet Standards provide for more reliability and further growth of the Internet.   \n"
-"Are you using them?"
+"Os padrões modernos da Internet proporcionam mais confiabilidade e segurança na Internet.  \n"
+"O teu domínio está preparado?"
 
 msgid "mail pagetitle"
 msgstr "Email test:"

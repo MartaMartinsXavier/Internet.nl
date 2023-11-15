@@ -73,6 +73,8 @@
 {% endblock %}
 
 {% block maincontent %}
+
+    <section class="fullblock">
       <section class="block news">
         <h2>{% include "string.html" with name="base news" %}</h2>
         <ul>
@@ -85,6 +87,10 @@
         </ul>
         <p class="read-more"><a href="/articles/">{% include "string.html" with name="base newslink" %}</a></p>
       </section>
+    </section>
+
+
+    <section class="fullblock">
       <section class="block hall-of-fame">
         <h2>{% include "string.html" with name="base halloffame" %}</h2>
         <p>
@@ -97,6 +103,10 @@
         </ol>
         <p class="read-more"><a href="/halloffame/">{% include "string.html" with name="base halloffame link" %}</a></p>
       </section>
+    </section>
+
+
+    <section class="fullblock">
       <section class="block dark stats">
         <h2>{% include "string.html" with name="home stats header" %}</h2>
         <h3>{{statswebsite}} {% include "string.html" with name="home stats website" %}</h3>
@@ -139,4 +149,6 @@
           </li>
         </ol>
       </section>
+    </section>
 {% endblock %}
+

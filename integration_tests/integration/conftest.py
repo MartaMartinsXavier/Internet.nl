@@ -9,6 +9,7 @@ APP_URL = f"https://{APP_DOMAIN}"
 # additional subdomains that serve the test website
 APP_URL_SUBDOMAINS = [
     "https://en.internet.test",
+    "https://pt.internet.test",
     "https://nl.internet.test",
     "https://www.internet.test",
     "https://ipv6.internet.test",

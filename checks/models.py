@@ -463,6 +463,10 @@ class WebTestTls(DomainServersModel):
         app_label = "checks"
         indexes = [models.Index(fields=["domain", "-id"], name="checks_webtesttls_dom_idx")]
 
+class MtaStsPolicyStatus(LabelEnum):
+    valid = 0
+    invalid = 1
+
 
 class DomainTestTls(BaseTestModel):
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -546,6 +550,14 @@ class DomainTestTls(BaseTestModel):
     cert_hostmatch_bad = ListField(null=True)
     cert_hostmatch_score = models.IntegerField(null=True)
 
+    # MTA STS
+    mtasts_score = models.IntegerField(null=True)
+    mtasts_available = models.BooleanField(null=True, default=False)
+    mtasts_record = ListField(default=[])
+    mtasts_policy_status = EnumIntegerField(MtaStsPolicyStatus, null=True)
+    mtasts_policy_score = models.IntegerField(null=True)
+    mtasts_policy_record = ListField(default=[])
+
     score = models.IntegerField(null=True)
 
     def __dir__(self):
@@ -606,6 +618,11 @@ class DomainTestTls(BaseTestModel):
             "cert_signature_score",
             "cert_hostmatch_bad",
             "cert_hostmatch_score",
+            "mtasts_score",
+            "mtasts_available",
+            "mtasts_record",
+            "mtasts_policy_status",
+            "mtasts_policy_score",
             "score",
             "protocols_good",
         ]
@@ -664,6 +681,11 @@ class DomainTestTls(BaseTestModel):
             "cert_pubkey_phase_out": self.cert_pubkey_phase_out,
             "cert_signature_bad": self.cert_signature_bad,
             "cert_hostmatch_bad": self.cert_hostmatch_bad,
+            "mtasts_score": self.mtasts_score,
+            "mtasts_available": self.mtasts_available,
+            "mtasts_record": self.mtasts_record,
+            "mtasts_policy_status": self.mtasts_policy_status,
+            "mtasts_policy_score": self.mtasts_policy_score,
         }
 
     class Meta:
@@ -715,6 +737,14 @@ class DomainTestAppsecpriv(BaseTestModel):
     x_content_type_options_values = ListField(default=[])
     x_content_type_options_score = models.IntegerField(null=True)
 
+    set_cookie_enabled = models.BooleanField(null=True, default=False)
+    set_cookie_values = ListField(default=[])
+    set_cookie_score = models.IntegerField(null=True)
+
+    server_header_enabled = models.BooleanField(null=True, default=False)
+    server_header_values = ListField(default=[])
+    server_header_score = models.IntegerField(null=True)
+
     securitytxt_enabled = models.BooleanField(null=True, default=False)
     securitytxt_errors = ListField(default=[])
     securitytxt_recommendations = ListField(default=[])
@@ -745,6 +775,12 @@ class DomainTestAppsecpriv(BaseTestModel):
             "x_content_type_options_enabled",
             "x_content_type_options_values",
             "x_content_type_options_score",
+            "set_cookie_enabled",
+            "set_cookie_values",
+            "set_cookie_score",
+            "server_header_enabled",
+            "server_header_values",
+            "server_header_score",
             "securitytxt_enabled",
             "securitytxt_errors",
             "securitytxt_recommendations",
@@ -761,6 +797,12 @@ class DomainTestAppsecpriv(BaseTestModel):
             "referrer_policy_values": self.referrer_policy_values,
             "x_content_type_options_enabled": self.x_content_type_options_enabled,
             "x_content_type_options_values": self.x_content_type_options_values,
+            "set_cookie_enabled": self.set_cookie_enabled,
+            "set_cookie_values": self.set_cookie_values,
+            "server_header_enabled": self.server_header_enabled,
+            "server_headers_values": self.server_header_values,
+            "x_xss_protection_enabled": self.x_xss_protection_enabled,
+            "x_xss_protection_values": self.x_xss_protection_values,
             "x_frame_options_enabled": self.x_frame_options_enabled,
             "x_frame_options_values": self.x_frame_options_values,
             "securitytxt_enabled": self.securitytxt_enabled,

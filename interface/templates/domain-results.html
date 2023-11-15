@@ -14,7 +14,9 @@
 {% endblock %}
 
 {% block testdetailitems %}
-  {% if probe.name == 'siteipv6' %}
+  
+
+{% if probe.name == 'siteipv6' %}
     <div class="test-subsection">
       {% include "string.html" with name="results domain-mail ipv6 name-servers label" %}
     </div>
@@ -30,6 +32,9 @@
   {% elif probe.name == 'sitednssec' %}
     {% include "details-test-item.html" with testitem=details.dnssec_exists %}
     {% include "details-test-item.html" with testitem=details.dnssec_valid %}
+
+
+
 
   {% elif probe.name == 'sitetls' %}
     <div class="test-subsection">
@@ -72,9 +77,13 @@
     {% include "details-test-item.html" with testitem=details.http_x_frame %}
     {% include "details-test-item.html" with testitem=details.http_x_content_type %}
     {# x-XSS shown for historical results only #}
-    {% include "details-test-item.html" with testitem=details.http_x_xss %}
     {% include "details-test-item.html" with testitem=details.http_csp %}
     {% include "details-test-item.html" with testitem=details.http_referrer_policy %}
+    {# Added header tests #}
+    {% include "details-test-item.html" with testitem=details.http_x_xss %}
+    {% include "details-test-item.html" with testitem=details.http_set_cookie %}
+    {% include "details-test-item.html" with testitem=details.http_server_header %}
+
     <div class="test-subsection">
       {% include "string.html" with name="results domain appsecpriv other-options label" %}
     </div>

@@ -277,6 +277,7 @@ USE_TZ = True
 LANGUAGES = sorted(
     [
         ("nl", "Dutch"),
+        ("pt", "Português"),
         ("en", "English"),
     ],
     key=lambda x: x[0],
@@ -339,6 +340,7 @@ CELERY_TASK_ROUTES = {
     "checks.tasks.tls.web_cert": {"queue": "nassl_worker"},
     "checks.tasks.tls.web_conn": {"queue": "nassl_worker"},
     "checks.tasks.tls.mail_smtp_starttls": {"queue": "nassl_worker"},
+    "checks.tasks.tls.mtasts": {"queue": "nassl_worker"},
     # Spread out all the work of all workers, the resolv worker has most issues with
     #  https://github.com/celery/celery/issues/6819 - so that should be rebooted a bit more often.
     "checks.tasks.ipv6.ns": {"queue": "ipv6_worker"},
@@ -379,6 +381,7 @@ CELERY_BATCH_TASK_ROUTES = {
     "checks.tasks.shared.batch_resolve_a_aaaa": {"queue": "batch_main"},
     "checks.tasks.tls.batch_mail_callback": {"queue": "batch_callback"},
     "checks.tasks.tls.batch_mail_smtp_starttls": {"queue": "batch_main"},
+    "checks.tasks.tls.batch_mtasts": {"queue": "batch_main"},
     "checks.tasks.tls.batch_web_callback": {"queue": "batch_callback"},
     "checks.tasks.tls.batch_web_cert": {"queue": "batch_main"},
     "checks.tasks.tls.batch_web_conn": {"queue": "batch_main"},

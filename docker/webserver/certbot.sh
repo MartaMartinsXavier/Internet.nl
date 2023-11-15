@@ -15,7 +15,7 @@ else
 fi
 
 domain=$INTERNETNL_DOMAINNAME
-subdomains="nl.$domain,en.$domain,www.$domain,ipv6.$domain,conn.$domain,en.conn.$domain,nl.conn.$domain,www.conn.$domain"
+subdomains="nl.$domain,en.$domain,pt.$domain,www.$domain,conn.$domain,en.conn.$domain,pt.conn.$domain,nl.conn.$domain,www.conn.$domain"
 
 # configure the main domain and the subdomains in 2 steps. This makes sure a cert for the main domain is always created
 # even if the subdomains are not configured.

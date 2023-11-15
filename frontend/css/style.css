@@ -169,7 +169,7 @@ header {
   width: 100%;
   background-color: #ffffff;
   box-shadow: 0px 1px 4px #888888;
-  border-bottom: 8px solid #05BFD6;
+  border-bottom: 8px solid #00CC00;
 }
 
 main {
@@ -184,7 +184,7 @@ main {
 
 .home .mainwrap {
   background-color: #05BFD6;
-  background: linear-gradient(#05BFD6, #45E7FB);
+  background: linear-gradient(#00CC00, #01CC0566);
   padding-top: 0;
 }
 
@@ -459,7 +459,7 @@ nav[aria-hidden=false] {
 @media screen {
 
     .introwrap p span {
-      background: #008297;
+      background: #868b8c;
       color: #ffffff;
       display: inline-block;
       padding: .5em 1em .7em 1em;
@@ -588,6 +588,16 @@ article img {
 }
 
 
+
+.fullblock {
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 1em;
+}
+
+
+
+
 /*.blocks */
 .block a {
   color: #037584;
@@ -596,7 +606,7 @@ article img {
   display: block;
   margin: 0 auto .5em;
   background: #fff;
-  border: solid .3em #ffab4c;
+  border: solid .3em #00CC00;
   font-family: 'robotobold', arial, sans-serif;
   font-weight: bold;
   font-size: 100%;
@@ -606,7 +616,7 @@ article img {
   .block button:hover,
   .block button:focus,
   .block button:active {
-    background: #ffab4c;
+    background: #00CC00;
   }
   .block button:hover {
     cursor: pointer;
@@ -743,6 +753,7 @@ article img {
   margin-left: 14px;
   clear: both;
 }
+
 .block.hall-of-fame li {
   margin-left: 7px;
 }
@@ -765,7 +776,7 @@ aside .further-testing li p,
 }
 .block.hall-of-fame li {
   list-style: url('/static/li-check-green.png');
-  list-style: url('/static/li-check-green.svg');
+  background-size: 16px 16px; 
 }
 
 .block h3 a {
@@ -941,8 +952,7 @@ aside .further-testing li p,
 /* Hall Of Fame, show some room on the left side of the image */
 .block.hall-of-fame {
   background: white url('/static/badge-simple-flat.png') center right no-repeat;
-  background-image: url('/static/badge-simple-flat.svg'), none;
-  background-size: 62px 80px;
+  background-size: 62px 50px;
   background-position: 95% .5em;
 }
 .block.hall-of-fame h2,
@@ -1224,7 +1234,7 @@ table td {
   height: 2.5em; /* 40px */
 }
 .score-container .score {
-  background: #ffab4c;
+  background: #afafaf;
   color: black;
   width: 2.5em; /* 40px */
   text-align: center;
@@ -1264,8 +1274,7 @@ table td {
   margin: 0 1px 0 0;
   padding: 0 0 10px 0;
   border-radius: 0 5px 5px 0;
-  background-color: #05BFD6;
-  background-color: rgba(5, 191, 214, .95);
+  background-color: #00CC00;
   background-image: linear-gradient(
     center bottom,
     rgb(43,194,83) 37%,
@@ -1368,6 +1377,26 @@ footer ul li:first-child {
 footer ul li:last-child {
   padding-right: 0;
 }
+
+
+.lightbulb {
+  background: url('/static/icon-lightbulb.jpg');
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: 5px center;
+  background-size: 1.25em 1.25em;
+  padding-left: 2em;
+}
+
+.tutorial {
+  background: url('/static/tutorial.png');
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: 5px center;
+  background-size: 1.25em 1.25em;
+  padding-left: 2em;
+}
+
 
 /* ============ */
 /* social media */
@@ -1610,13 +1639,13 @@ footer ul li.follow-us {
   .introwrap p span:before {
     left: -20px;
     bottom: 0;
-    border-color: transparent #008297;
+    border-color: transparent #868b8c;
   }
 
   .introwrap p span:after {
     right: -20px;
     top: 0;
-    border-color: #008297 transparent;
+    border-color: #868b8c transparent;
   }
 
   .home .block.news,
@@ -1660,7 +1689,7 @@ footer ul li.follow-us {
     margin-right: 1em;
   }
   .home main .wrap .block {
-    width: calc(33% - 1em);
+    width: 100%;
     flex: 1 0 calc(33% - 1em);
     margin-top: .75em;
   }

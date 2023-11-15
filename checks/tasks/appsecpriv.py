@@ -14,6 +14,9 @@ from checks.tasks.http_headers import (
     HeaderCheckerContentSecurityPolicy,
     HeaderCheckerReferrerPolicy,
     HeaderCheckerXContentTypeOptions,
+    HeaderCheckerXXSSProtection,
+    HeaderCheckerSetCookie,
+    HeaderCheckerServer,
     HeaderCheckerXFrameOptions,
     http_headers_check,
 )
@@ -129,6 +132,17 @@ def save_results(model, results, addr, domain):
                 model.content_security_policy_score = result.get("content_security_policy_score")
                 model.content_security_policy_values = result.get("content_security_policy_values")
                 model.content_security_policy_errors = result.get("content_security_policy_errors")
+                model.x_xss_protection_enabled = result.get("x_xss_protection_enabled")
+                model.x_xss_protection_score = result.get("x_xss_protection_score")
+                model.x_xss_protection_values = result.get("x_xss_protection_values")
+
+                model.set_cookie_enabled = result.get("set_cookie_enabled")
+                model.set_cookie_score = result.get("set_cookie_score")
+                model.set_cookie_values = result.get("set_cookie_values")
+
+                model.server_header_enabled = result.get("server_header_enabled")
+                model.server_header_score = result.get("server_header_score")
+                model.server_header_values = result.get("server_header_values")
 
     model.save()
 
@@ -185,6 +199,24 @@ def build_report(model, category):
             category.subtests["http_x_content_type"].result_good(model.x_content_type_options_values)
         else:
             category.subtests["http_x_content_type"].result_bad(model.x_content_type_options_values)
+        
+        if model.x_xss_protection_enabled:
+            category.subtests["http_x_xss"].result_good(model.x_xss_protection_values)
+        else:
+            category.subtests["http_x_xss"].result_bad(model.x_xss_protection_values)
+
+        if model.set_cookie_enabled:
+            category.subtests["http_set_cookie"].result_good(model.set_cookie_values)
+        else:
+            category.subtests["http_set_cookie"].result_bad(model.set_cookie_values)
+
+        if model.server_header_enabled:
+            category.subtests["http_server_header"].result_good(model.server_header_values)
+        else:
+            category.subtests["http_server_header"].result_bad(model.server_header_values)
+            
+
+            
 
         if model.securitytxt_enabled:
             default_message = [
@@ -239,6 +271,9 @@ def do_web_appsecpriv(af_ip_pairs, url, task, *args, **kwargs):
             HeaderCheckerXFrameOptions(),
             HeaderCheckerReferrerPolicy(),
             HeaderCheckerXContentTypeOptions(),
+            HeaderCheckerXXSSProtection(),
+            HeaderCheckerSetCookie(),
+            HeaderCheckerServer()
         ]
         for af_ip_pair in af_ip_pairs:
             results[af_ip_pair[1]] = http_headers_check(af_ip_pair, url, header_checkers, task)

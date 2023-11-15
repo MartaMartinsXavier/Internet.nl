@@ -47,6 +47,7 @@ PROBES: Dict[str, Optional[Callable]] = {
     "tls_web_conn": tls.web_conn,
     "tls_web_http": tls.web_http,
     "tls_mail_smtp_starttls": tls.mail_smtp_starttls,
+    "tls_mtasts": tls.mtasts,
     "mail_rpki": rpki.mail_rpki,
     "web_rpki": rpki.web_rpki,
     "all": None,

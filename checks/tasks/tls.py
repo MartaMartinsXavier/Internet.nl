@@ -8,6 +8,7 @@ import time
 from urllib.parse import urlparse
 
 import requests
+import unbound
 from binascii import hexlify
 from enum import Enum
 from itertools import product
@@ -49,6 +50,7 @@ from checks.models import (
     OcspStatus,
     WebTestTls,
     ZeroRttStatus,
+    MtaStsPolicyStatus
 )
 from checks.tasks import SetupUnboundContext
 from checks.tasks.cipher_info import CipherScoreAndSecLevel, SecLevel, cipher_infos
@@ -58,6 +60,7 @@ from checks.tasks.http_headers import (
     HeaderCheckerStrictTransportSecurity,
     http_headers_check,
 )
+from checks.tasks.mtasts_parser import parse as mtasts_parse
 from checks.tasks.shared import (
     aggregate_subreports,
     batch_mail_get_servers,
@@ -587,6 +590,28 @@ def batch_mail_smtp_starttls(self, mailservers, url, *args, **kwargs):
     return do_mail_smtp_starttls(mailservers, url, self, *args, **kwargs)
 
 
+@mail_registered
+@shared_task(
+    bind=True,
+    soft_time_limit=settings.SHARED_TASK_SOFT_TIME_LIMIT_HIGH,
+    time_limit=settings.SHARED_TASK_TIME_LIMIT_HIGH,
+    base=SetupUnboundContext,
+)
+def mtasts(self, mailservers, url, *args, **kwargs):
+    return do_mtasts(self, mailservers, url, *args, **kwargs)
+
+
+@batch_mail_registered
+@batch_shared_task(
+    bind=True,
+    soft_time_limit=settings.BATCH_SHARED_TASK_SOFT_TIME_LIMIT_HIGH,
+    time_limit=settings.BATCH_SHARED_TASK_TIME_LIMIT_HIGH,
+    base=SetupUnboundContext,
+)
+def batch_mtasts(self, mailservers, url, *args, **kwargs):
+    return do_mtasts(self, mailservers, url, *args, **kwargs)
+
+
 @web_registered
 @shared_task(
     bind=True,
@@ -734,6 +759,14 @@ def save_results(model, results, addr, domain, category):
                     model.dane_status = result.get("dane_status")
                     model.dane_records = result.get("dane_records")
                     model.dane_rollover = result.get("dane_rollover")
+
+            elif testname == "mtasts":
+                model.mtasts_available = result.get("available")
+                model.mtasts_record = result.get("record")
+                model.mtasts_score = result.get("score")
+                model.mtasts_policy_status = result.get("policy_status")
+                model.mtasts_policy_score = result.get("policy_score")
+                model.mtasts_policy_record = result.get("policy_record")
 
     model.save()
 
@@ -1078,6 +1111,16 @@ def build_report(dttls, category):
                 category.subtests["kex_hash_func"].result_bad()
             elif dttls.kex_hash_func == KexHashFuncStatus.unknown:
                 category.subtests["kex_hash_func"].result_unknown()
+
+            # MTA STS
+            if dttls.mtasts_available:
+                category.subtests["mtasts"].result_good(dttls.mtasts_record)
+                if dttls.mtasts_policy_status == MtaStsPolicyStatus.valid:
+                    category.subtests["mtasts_policy"].result_good(dttls.mtasts_policy_record)
+                else:
+                    category.subtests["mtasts_policy"].result_bad(dttls.mtasts_policy_record)
+            else:
+                category.subtests["mtasts"].result_bad(dttls.mtasts_record)
 
     dttls.report = category.gen_report()
 
@@ -2998,3 +3041,126 @@ def forced_http_check(af_ip_pair, url, task):
                 forced_https_score = scoring.WEB_TLS_FORCED_HTTPS_GOOD
 
     return forced_https_score, forced_https
+
+
+def as_txt(data):
+    try:
+        txt = "".join(unbound.ub_data.dname2str(data))
+    except UnicodeError:
+        txt = "<Non ASCII characters found>"
+    return txt
+
+
+def do_mtasts(self, mailservers, url, *args, **kwargs):
+    results = {}
+    for mailserver in mailservers:
+        domain = mailserver[0]
+        try:
+            cb_data = self.async_resolv(f"_mta-sts.{url}", unbound.RR_TYPE_TXT, mtasts_callback)
+
+            available = "available" in cb_data and cb_data["available"]
+            score = cb_data["score"]
+            record = cb_data["record"]
+
+            policy_status = None
+            policy_score = scoring.MAIL_MTASTS_POLICY_FAIL
+            policy_record = []
+
+            if len(record) == 1:
+                policy_status, policy_score, policy_record = mtasts_check_policy(url, record[0], self)
+
+            result = dict(
+                available=available,
+                score=score,
+                record=record,
+                policy_status=policy_status,
+                policy_score=policy_score,
+                policy_record=policy_record
+            )
+
+        # KeyError is due to score missing, happens in case of timeout on non resolving domain
+        except (SoftTimeLimitExceeded, KeyError) as specific_exception:
+            log.debug("Soft time limit exceeded: %s", specific_exception)
+            result = dict(
+                available=False,
+                score=scoring.MAIL_MTASTS_FAIL,
+                record=[],
+                policy_status=None,
+                policy_score=scoring.MAIL_MTASTS_POLICY_FAIL,
+                policy_record=[]
+            )
+        
+        results[domain] = result
+    
+    return ("mtasts", results)
+
+
+def mtasts_callback(data, status, r):
+    data["score"] = scoring.MAIL_MTASTS_FAIL
+    data["available"] = False
+    data["record"] = []
+
+    if status == 0:
+        record = []
+        available = False
+        if r.rcode == unbound.RCODE_NOERROR and r.havedata == 1:
+            # _mta-sts TXT record found
+            score = scoring.MAIL_MTASTS_FAIL
+            print(r.data)
+            for d in r.data.data:
+                txt = as_txt(d)
+                print(txt)
+                if txt.startswith("v=STSv1"):
+                    record.append(txt)
+                    if available:
+                        # We see more than one MTASTS record. Fail the test.
+                        available = False
+                        score = scoring.MAIL_MTASTS_FAIL
+                        break
+                    else:
+                        available = True
+                        score = scoring.MAIL_MTASTS_PASS
+
+            # Check if we got an answer but all the TXT records were not MTASTS
+            # records. In that case look for a record in the organizational
+            # domain.
+            if not record:
+                score = scoring.MAIL_MTASTS_FAIL
+        elif r.rcode == unbound.RCODE_NXDOMAIN or (r.rcode == unbound.RCODE_NOERROR and r.havedata == 0):
+            # we know for sure there is no MTASTS policy
+            score = scoring.MAIL_MTASTS_FAIL
+        else:
+            # resolving problems, servfail probably
+            score = scoring.MAIL_MTASTS_FAIL
+
+        data["score"] = score
+        data["available"] = available
+        data["record"] = record
+    data["done"] = True
+
+    print(data)
+
+def fetch_mta_sts_policy(domain):
+    url = f"https://mta-sts.{domain}/.well-known/mta-sts.txt"
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        return response.text
+    except requests.RequestException as e:
+        print("An error occurred:", str(e))
+        return None
+
+def mtasts_check_policy(domain, mtasts_record, task):
+    status = MtaStsPolicyStatus.valid
+    score = scoring.MAIL_MTASTS_POLICY_PASS
+
+    policy = fetch_mta_sts_policy(domain)
+    print(policy)
+    parsed = mtasts_parse(policy)
+    print(parsed)
+
+    if not parsed:
+        status = MtaStsPolicyStatus.invalid
+        score = scoring.MAIL_MTASTS_FAIL
+
+    return status, score, [policy]
